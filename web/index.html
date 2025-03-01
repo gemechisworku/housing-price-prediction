@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Housing Price Prediction</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    form {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="number"], input[type="checkbox"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.2em;
+      color: #4CAF50;
+    }
+  </style>
+</head>
+<body>
+  <h1>Housing Price Prediction</h1>
+  <form id="predictionForm">
+    <label for="SquareFeet">Square Feet:</label>
+    <input type="number" id="SquareFeet" name="SquareFeet" required>
+
+    <label for="Bedrooms">Bedrooms:</label>
+    <input type="number" id="Bedrooms" name="Bedrooms" required>
+
+    <label for="Bathrooms">Bathrooms:</label>
+    <input type="number" id="Bathrooms" name="Bathrooms" required>
+
+    <label for="YearBuilt">Year Built:</label>
+    <input type="number" id="YearBuilt" name="YearBuilt" required>
+
+    <label>Neighborhood:</label>
+<label for="Neighborhood_Suburb">
+  <input type="radio" id="Neighborhood_Suburb" name="Neighborhood" value="Suburb">
+  Suburb
+</label>
+<label for="Neighborhood_Urban">
+  <input type="radio" id="Neighborhood_Urban" name="Neighborhood" value="Urban">
+  Urban
+</label>
+
+    <button type="submit">Predict Price</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('predictionForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      // Get form data
+      const SquareFeet = parseFloat(document.getElementById('SquareFeet').value);
+      const Bedrooms = parseInt(document.getElementById('Bedrooms').value);
+      const Bathrooms = parseInt(document.getElementById('Bathrooms').value);
+      const YearBuilt = parseInt(document.getElementById('YearBuilt').value);
+      const Neighborhood = document.querySelector('input[name="Neighborhood"]:checked')?.value;
+
+      // Prepare the request body
+      const requestBody = {
+        SquareFeet,
+        Bedrooms,
+        Bathrooms,
+        YearBuilt,
+        Neighborhood
+      };
+
+      try {
+        // Send a POST request to the FastAPI endpoint
+        const response = await fetch('http://127.0.0.1:8000/predict/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch prediction');
+        }
+
+        // Parse the response and display the result
+        const data = await response.json();
+        document.getElementById('result').innerText = `Predicted Price: $${data.predicted_price.toFixed(2)}`;
+      } catch (error) {
+        document.getElementById('result').innerText = `Error: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
